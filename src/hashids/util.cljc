@@ -1,6 +1,7 @@
 (ns hashids.util
   #?(:cljs (:require-macros [hashids.util :refer [xor]]))
   (:require [clojure.edn :as edn]
+            [clojure.math :as math]
             [clojure.string :as str]))
 
 (defmacro xor
@@ -14,18 +15,23 @@
         (if b# b# false)))))
 
 (defn long->hexstr [n]
-  #?(:clj  (format "%x" n)
-     :cljs (js-invoke n "toString" 16)))
+  #?(:cljs    (js-invoke n "toString" 16)
+     :default (format "%x" n)))
+
+(defn ceil [n]
+  (long (#?(:cljr math/ceiling :default math/ceil) n)))
 
 (defn hexstr->long
   [s]
   (try
     (edn/read-string (str "0x" s))
-    (catch #?(:clj java.lang.NumberFormatException :cljs :default) _)))
+    (catch #?(:clj  java.lang.NumberFormatException
+              :cljr System.FormatException
+              :cljs :default) _)))
 
 (defn char-code [c]
-  #?(:clj  (long c)
-     :cljs (js-invoke c "charCodeAt" 0)))
+  #?(:cljs    (js-invoke c "charCodeAt" 0)
+     :default (long c)))
 
 (defn positions
   "Returns the indexes of the items in the collection whose items satisfy the predicate"

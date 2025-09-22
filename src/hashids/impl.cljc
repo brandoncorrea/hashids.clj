@@ -112,7 +112,7 @@
 (defn balance-seps
   "Balance alphabet and seps, the ratio of sizes of which should SEP_DIV"
   [seps alph]
-  (let [seps-length-ceil (int (math/ceil (/ (count alph) SEP_DIV)))
+  (let [seps-length-ceil (util/ceil (/ (count alph) SEP_DIV))
         seps-length      (if (= 1 seps-length-ceil)
                            2
                            seps-length-ceil)
@@ -130,7 +130,7 @@
 (defn extract-guards
   "Take portions of seps or alphabet to make guards"
   [alph seps]
-  (let [guard-length (long (math/ceil (/ (count alph) GUARD_DIV)))]
+  (let [guard-length (util/ceil (/ (count alph) GUARD_DIV))]
     (if (< (count alph) 3)
       {:guards   (subs seps 0 guard-length)
        :seps     (subs seps guard-length)
