@@ -1,5 +1,6 @@
 (ns hashids.util-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.string :as str]
+            [clojure.test :refer [deftest is]]
             [clojure.test.check.clojure-test :refer [defspec]]
             [clojure.test.check.generators :as gen]
             [clojure.test.check.properties :as prop]
@@ -36,5 +37,5 @@
   ;;"consistent-shuffle returns something other than the alphabet for a non-empty string"
   1000
   (prop/for-all [s gen/string]
-    (is (not-any? clojure.string/blank? (map str (util/strip-whitespace s))))))
+    (is (not-any? str/blank? (map str (util/strip-whitespace s))))))
 
