@@ -4,6 +4,10 @@
 pom.xml
 pom.xml.asc
 *.jar
+*.iml
 *.class
 /.lein-*
 /.nrepl-port
+.idea
+.cpcache
+cljs-test-runner-out
