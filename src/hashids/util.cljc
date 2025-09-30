@@ -16,6 +16,7 @@
 
 (defn long->hexstr [n]
   #?(:cljs    (js-invoke n "toString" 16)
+     :cljd    (.toRadixString ^int n 16)
      :default (format "%x" n)))
 
 (defn ceil [n]
@@ -27,6 +28,7 @@
     (edn/read-string (str "0x" s))
     (catch #?(:clj  java.lang.NumberFormatException
               :cljr System.FormatException
+              :cljd FormatException
               :cljs :default) _)))
 
 (defn char-code [c]

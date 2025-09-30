@@ -1,25 +1,37 @@
 (ns hashids.impl-test
   (:require [clojure.test :refer [deftest is testing]]
-            [clojure.test.check.clojure-test :refer [defspec]]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
-            [hashids.impl :as impl]))
+            [hashids.impl :as impl]
+            #?@(:cljd    ()
+                :default ([clojure.test.check.clojure-test :refer [defspec]]
+                          [clojure.test.check.generators :as gen]
+                          [clojure.test.check.properties :as prop]))))
 
-(def gen-alphabet (gen/return "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"))
-(def gen-salt gen/string-alphanumeric)
+(def alphabet "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+(def gen-alphabet
+  #?(:cljd    nil
+     :default (gen/return alphabet)))
 
-(defspec consistent-shuffle-empty-salt
-  ;;"consistent-shuffle returns the alphabet if given an empty salt"
-  1000
-  (prop/for-all [alphabet gen-alphabet]
-    (is (= alphabet (impl/consistent-shuffle alphabet "")))))
+#?(:cljd
+   (deftest consistent-shuffle-empty-salt
+     (is (= alphabet (impl/consistent-shuffle alphabet ""))))
+   :default
+   (defspec consistent-shuffle-empty-salt
+     ;;"consistent-shuffle returns the alphabet if given an empty salt"
+     1000
+     (prop/for-all [alphabet gen-alphabet]
+       (is (= alphabet (impl/consistent-shuffle alphabet ""))))))
 
-(defspec consistent-shuffle-non-empty
-  ;;"consistent-shuffle returns something other than the alphabet for a non-empty salt"
-  1000
-  (prop/for-all [alphabet gen-alphabet
-                 salt     (gen/not-empty gen-salt)]
-    (is (not= alphabet (impl/consistent-shuffle alphabet salt)))))
+#?(:cljd
+   (deftest consistent-shuffle-non-empty
+     (doseq [salt ["a" "ab" "abc"]]
+       (is (not= alphabet (impl/consistent-shuffle alphabet salt)))))
+   :default
+   (defspec consistent-shuffle-non-empty
+     ;;"consistent-shuffle returns something other than the alphabet for a non-empty salt"
+     1000
+     (prop/for-all [alphabet gen-alphabet
+                    salt     (gen/not-empty gen/string-alphanumeric)]
+       (is (not= alphabet (impl/consistent-shuffle alphabet salt))))))
 
 (deftest setup-creates-proper-guards
   "Setup returns default values"

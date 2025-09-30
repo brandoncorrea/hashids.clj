@@ -1,12 +1,13 @@
 (ns hashids.core-test
   (:require [clojure.test :refer [deftest is]]
-            [clojure.test.check.clojure-test :refer [defspec]]
-            [clojure.test.check.generators :as gen]
-            [clojure.test.check.properties :as prop]
-            [hashids.core :as core]))
+            [hashids.core :as core]
+            #?@(:cljd    ()
+                :default ([clojure.test.check.clojure-test :refer [defspec]]
+                          [clojure.test.check.generators :as gen]
+                          [clojure.test.check.properties :as prop]))))
 
-(def gen-salt gen/string-alphanumeric)
-(def gen-nums (gen/not-empty (gen/vector gen/nat)))
+(def gen-salt #?(:cljd nil :default gen/string-alphanumeric))
+(def gen-nums #?(:cljd nil :default (gen/not-empty (gen/vector gen/nat))))
 
 (deftest test-known-encodings
   "Test known encodings of integers from other hashids libraries, for a given salt"
@@ -24,21 +25,35 @@
   "Test known encodings of integers from other hashids libraries, for a given salt"
   (is (= "pwcnfVMX3" (core/encode {:salt ""} 0 1 1000000))))
 
-(defspec test-respects-min-length
-  ;;"encode a bunch of numbers, and make sure that they return an empty collection when you attempt to decrypt with a different salt"
-  200
-  (prop/for-all [salt       gen-salt
-                 nums       gen-nums
-                 min-length gen/nat]
-    (is (<= min-length (count (core/encode {:salt salt :min-length min-length} nums))))))
+#?(:cljd
+   (deftest test-respects-min-length
+     (doseq [salt       ["salt" "blah"]
+             nums       [[1] [1 20] [0 1 1000000]]
+             min-length [1 2 3 10]]
+       (is (<= min-length (count (core/encode {:salt salt :min-length min-length} nums))))))
+   :default
+   (defspec test-respects-min-length
+     ;;"encode a bunch of numbers, and make sure that they return an empty collection when you attempt to decrypt with a different salt"
+     200
+     (prop/for-all [salt       gen-salt
+                    nums       gen-nums
+                    min-length gen/nat]
+       (is (<= min-length (count (core/encode {:salt salt :min-length min-length} nums)))))))
 
-(defspec test-encodes-and-decodes
-  ;;"encode a bunch of numbers, and make sure that they return an empty collection when you attempt to decrypt with a different salt"
-  200
-  (prop/for-all [salt       gen-salt
-                 nums       gen-nums
-                 min-length gen/nat]
-    (is (= nums (core/decode {:salt salt :min-length min-length} (core/encode {:salt salt :min-length min-length} nums))))))
+#?(:cljd
+   (deftest test-encodes-and-decodes
+     (doseq [salt       ["salt" "blah"]
+             nums       [[1] [1 20] [0 1 1000000]]
+             min-length [1 2 3 10]]
+       (is (= nums (core/decode {:salt salt :min-length min-length} (core/encode {:salt salt :min-length min-length} nums))))))
+   :default
+   (defspec test-encodes-and-decodes
+     ;;"encode a bunch of numbers, and make sure that they return an empty collection when you attempt to decrypt with a different salt"
+     200
+     (prop/for-all [salt       gen-salt
+                    nums       gen-nums
+                    min-length gen/nat]
+       (is (= nums (core/decode {:salt salt :min-length min-length} (core/encode {:salt salt :min-length min-length} nums)))))))
 
 
 (deftest test-min-length-known-values

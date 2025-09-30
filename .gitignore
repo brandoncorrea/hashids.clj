@@ -11,3 +11,7 @@ pom.xml.asc
 .idea
 .cpcache
 cljs-test-runner-out
+.dart_tool
+.clojuredart
+lib/
+test/cljd-out
