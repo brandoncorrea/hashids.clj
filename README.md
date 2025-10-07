@@ -6,11 +6,18 @@ This is port of the [hashids](http://hashids.org) library, and aims to be functi
 
 > **NOTE**   Hashids is not a [cryptographic hash](http://en.wikipedia.org/wiki/Cryptographic_hash_function), as it is reversible, and is not suitable for security purposes.  Don't try to encode secrets with hashids.
 
+## Sqids
+
+[Sqids](https://sqids.org/) is an upgraded and simpler version of Hashids that
+supports some additional features, but is not compatible with the Hashids
+algorithm. Consider using
+[sqids-clojure](https://github.com/sqids/sqids-clojure) in favor of Hashids.
+
 ## Installation
 
 In your `deps.edn`'s `:dependencies`:
 ```clojure
-{io.github.brandoncorrea/hashids.clj {:git/tag "1.1.0" :git/sha "a29330f"}}
+io.github.brandoncorrea/hashids.clj {:git/tag "1.1.0" :git/sha "a29330f"}
 ```
 
 ## Usage
